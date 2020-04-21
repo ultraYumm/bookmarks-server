@@ -118,7 +118,8 @@ describe('Bookmarks Endpoints', function() {
               desc_: 'How-to-post',
               rating: 4                     
                }
-             return supertest(app)
+
+            return supertest(app)
                .post('/bookmarks')
                .send(newBookmark)
                .expect(201)
@@ -158,7 +159,26 @@ describe('Bookmarks Endpoints', function() {
                   error: { message: `Missing '${field}' in request body` }
                 })
             })
+
+            it(`responds with 400 invalid 'rating' if not between 0 and 5`, () => {
+              const newBookmarkInvalidRating = {
+                title: 'test-title',
+                url_: 'https://test.com',
+                desc_: "test desc",
+                rating: '6',
+              }
+              return supertest(app)
+                .post(`/bookmarks`)
+                .send(newBookmarkInvalidRating)
+                .expect(400, {
+                  error: { message: `Rating must be between 0 and 5` }
+                })
+            })
+
           })
+          
+
+
          })
 
          describe.only(`DELETE /bookmarks/:bookmark_id`, () => {

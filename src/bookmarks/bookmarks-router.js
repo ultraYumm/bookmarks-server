@@ -27,11 +27,23 @@ bookmarksRouter
     const { title, url_, desc_, rating } = req.body
     const newBookmark = { title, url_, desc_, rating }
 
+    
     for (const [key, value] of Object.entries(newBookmark))
       if (value == null)
         return res.status(400).json({
           error: { message: `Missing '${key}' in request body` }
         })
+
+    if (req.body.rating>5) {
+        return res.status(400).send({
+            error: { message:"Rating must be between 1 and 5" }
+        })}
+    
+    if (req.body.rating == 0 ) {
+            return res.status(400).send({
+                error: { message:"Rating must be between 1 and 5" }
+            })}
+        
 
     BookmarksService.insertBookmark(
       req.app.get('db'),
