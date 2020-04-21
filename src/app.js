@@ -4,8 +4,9 @@ const morgan = require('morgan')
 const cors = require('cors')
 const helmet = require('helmet')
 const { NODE_ENV } = require('./config')
-const BookmarksService = require('./bookmarks-service')
+const bookmarksRouter = require('./bookmarks/bookmarks-router')
 const app = express()
+
 
 
 const morganOption = (NODE_ENV === 'production')
@@ -15,31 +16,16 @@ const morganOption = (NODE_ENV === 'production')
 app.use(morgan(morganOption))
 app.use(helmet())
 
+app.use('/bookmarks', bookmarksRouter)
 
-app.get('/bookmarks', (req, res, next) => {
-  const knexInstance = req.app.get('db')
-  BookmarksService.getAllBookmarks(knexInstance)
-     .then(bookmarks => {
-       res.json(bookmarks)
-     })
-     .catch(next)
-   })
+app.get('/', (req, res) => {
+  res.send('Hello, bookmarks!')
+})
 
-app.get('/bookmarks/:bookmark_id', (req, res, next) => {
-    const knexInstance = req.app.get('db')
-     BookmarksService.getById(knexInstance, req.params.bookmark_id)
-       .then(bookmark => {
-        if (!bookmark) {
-            return res.status(404).json({
-            error: { message: `Bookmark doesn't exist` }
-                   })
-              }
-         res.json(bookmark)
-       })
-       .catch(next)
-    })
-  
-
+app.get('/xss', (req, res) => {
+  res.cookie('secretToken', '1234567890');
+  res.sendFile(__dirname + '/xss-example.html');
+});
 
 app.use(cors())
 
